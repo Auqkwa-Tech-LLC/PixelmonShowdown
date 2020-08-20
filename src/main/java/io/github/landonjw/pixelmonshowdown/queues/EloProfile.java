@@ -1,7 +1,16 @@
 package io.github.landonjw.pixelmonshowdown.queues;
 
+import io.github.landonjw.pixelmonshowdown.PixelmonShowdown;
+import io.github.landonjw.pixelmonshowdown.events.ArenaWinEvent;
 import io.github.landonjw.pixelmonshowdown.utilities.DataManager;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.EventContext;
+import org.spongepowered.api.event.cause.EventContextKeys;
+import org.spongepowered.api.plugin.PluginContainer;
 
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -121,8 +130,18 @@ public class EloProfile {
     public void addWin(int oppElo) {
         double kFactor = getKFactor();
 
-        int newElo = (int) (Math.round((elo + kFactor * (1.0 - getExpectedOutcome(oppElo)))));
+        double wonElo = kFactor * (1.0 - getExpectedOutcome(oppElo));
+        int newElo = (int) (Math.round((elo + wonElo)));
 
+        PluginContainer plugin = PixelmonShowdown.getContainer();
+        EventContext eventContext = EventContext.builder().add(EventContextKeys.PLUGIN, plugin).build();
+
+        Optional<Player> player = Sponge.getServer().getPlayer(this.uuid);
+
+        if(player.isPresent()) {
+            ArenaWinEvent event = new ArenaWinEvent(player.get(), wonElo, Cause.of(eventContext, plugin));
+            Sponge.getEventManager().post(event);
+        }
         //Set elo back to floor if it's below
         if(newElo < ELO_FLOOR) {
             this.elo = ELO_FLOOR;

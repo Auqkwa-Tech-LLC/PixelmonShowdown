@@ -37,14 +37,15 @@ minecraft {
 
 repositories {
     mavenCentral()
-    maven {
-        url 'https://jitpack.io'
-    }
+    maven { url 'https://jitpack.io' }
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
     compile 'org.spongepowered:spongeapi:7.1.0'
     compile 'com.github.rojo8399:PlaceholderAPI:4.5.1'
+    compileOnly fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.github.SimonFlash.TeslaPowered:TeslaCore:v1.1.6'
 }
 
 processResources {
